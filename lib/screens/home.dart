@@ -7,6 +7,12 @@ import 'package:class4vet/widgets/feature_item.dart';
 import 'package:class4vet/widgets/notification_box.dart';
 import 'package:class4vet/widgets/recommend_item.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:class4vet/screens/course_detail_page.dart';
+import 'package:class4vet/widgets/custom_image.dart';
+import 'package:class4vet/screens/all_courses_page.dart';
+import 'package:class4vet/screens/profile_page.dart';
+import 'package:class4vet/screens/category_courses_page.dart';
+import 'package:class4vet/widgets/course_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -44,10 +50,18 @@ class _HomePageState extends State<HomePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: Row(
-            children: [
-              Container(
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfilePage(),
+                  ),
+                );
+              },
+              child: Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
@@ -70,35 +84,31 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile["name"]!,
-                      style: TextStyle(
-                        color: AppColor.labelColor,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      "Good Morning!",
-                      style: TextStyle(
-                        color: AppColor.textColor,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
+            ),
+            const SizedBox(width: 10),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile["name"]!,
+                  style: TextStyle(
+                    color: AppColor.labelColor,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 5),
+                Text(
+                  "Good Morning!",
+                  style: TextStyle(
+                    color: AppColor.textColor,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         NotificationBox(
           notifiedNumber: 1,
@@ -114,44 +124,40 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCategories(),
-          const SizedBox(
-            height: 15,
-          ),
+          const SizedBox(height: 15),
+          _buildFeaturesSection(),
+          const SizedBox(height: 15),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
-            child: Text(
-              "Featured",
-              style: TextStyle(
-                color: AppColor.textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 24,
-              ),
-            ),
-          ),
-          _buildFeatured(),
-          const SizedBox(
-            height: 15,
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(15, 0, 15, 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Recommended",
                   style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.textColor),
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.textColor,
+                  ),
                 ),
-                Text(
-                  "See all",
-                  style: TextStyle(fontSize: 14, color: AppColor.darker),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AllCoursesPage(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "See all",
+                    style: TextStyle(fontSize: 14, color: AppColor.darker),
+                  ),
                 ),
               ],
             ),
           ),
-          _buildRecommended(),
+          _buildRecommendSection(),
         ],
       ),
     );
@@ -166,10 +172,22 @@ class _HomePageState extends State<HomePage> {
           categories.length,
           (index) => Padding(
             padding: const EdgeInsets.only(right: 15),
-            child: CategoryBox(
-              selectedColor: Colors.white,
-              data: categories[index],
-              onTap: null,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryCoursesPage(
+                      category: categories[index],
+                    ),
+                  ),
+                );
+              },
+              child: CategoryBox(
+                selectedColor: Colors.white,
+                data: categories[index],
+                onTap: null,
+              ),
             ),
           ),
         ),
@@ -177,38 +195,131 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _buildFeatured() {
-    return CarouselSlider(
-      options: CarouselOptions(
-        height: 290,
-        enlargeCenterPage: true,
-        disableCenter: true,
-        viewportFraction: .75,
-      ),
-      items: List.generate(
-        features.length,
-        (index) => FeatureItem(
-          data: features[index],
-        ),
-      ),
-    );
-  }
+  _buildFeaturesSection() {
+    // Basic, Emergency, Equipment 카테고리의 첫 번째 코스를 가져옵니다
+    final basicCourse =
+        courses.firstWhere((course) => course['category'] == 'Basic');
+    final emergencyCourse =
+        courses.firstWhere((course) => course['category'] == 'Emergency');
+    final equipmentCourse =
+        courses.firstWhere((course) => course['category'] == 'Equipment');
 
-  _buildRecommended() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(15, 5, 0, 5),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(
-          recommends.length,
-          (index) => Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: RecommendItem(
-              data: recommends[index],
+    final features = [
+      {
+        'title': basicCourse['name'],
+        'description': basicCourse['description'],
+        'image': basicCourse['image'],
+        'category': 'Basic',
+        'icon': Icons.school,
+        'course': basicCourse,
+      },
+      {
+        'title': emergencyCourse['name'],
+        'description': emergencyCourse['description'],
+        'image': emergencyCourse['image'],
+        'category': 'Emergency',
+        'icon': Icons.medical_services,
+        'course': emergencyCourse,
+      },
+      {
+        'title': equipmentCourse['name'],
+        'description': equipmentCourse['description'],
+        'image': equipmentCourse['image'],
+        'category': 'Equipment',
+        'icon': Icons.security,
+        'course': equipmentCourse,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Featured Courses',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
         ),
-      ),
+        SizedBox(height: 20),
+        SizedBox(
+          height: 280,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            itemCount: features.length,
+            itemBuilder: (context, index) {
+              return _buildFeatureItem(features[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureItem(Map<String, dynamic> feature) {
+    return CourseCard(
+      image: feature['image'],
+      title: feature['title'],
+      description: feature['description'],
+      price: feature['course']['price'],
+      review: feature['course']['review'].toString(),
+      icon: feature['icon'],
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailPage(course: feature['course']),
+          ),
+        );
+      },
+    );
+  }
+
+  _buildRecommendSection() {
+    // 리뷰 점수가 4.8 이상인 코스들을 추천 코스로 사용
+    final recommends = courses
+        .where((course) => double.parse(course['review']) >= 4.8)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 280,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            itemCount: recommends.length,
+            itemBuilder: (context, index) {
+              return _buildRecommendItem(recommends[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildRecommendItem(Map<String, dynamic> course) {
+    return CourseCard(
+      image: course['image'],
+      title: course['name'],
+      description: course['description'],
+      price: course['price'],
+      review: course['review'].toString(),
+      icon: Icons.star,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailPage(course: course),
+          ),
+        );
+      },
     );
   }
 }
