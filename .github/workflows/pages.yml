@@ -37,5 +37,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-          commit_message: "Deploy to GitHub Pages"
-          force: true 
+          commit_message: "Deploy to GitHub Pages" 
