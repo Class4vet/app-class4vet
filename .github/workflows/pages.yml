@@ -20,7 +20,7 @@ jobs:
       - run: |
           flutter config --enable-web
           flutter pub get
-          flutter build web --release --base-href "/app-class4vet/"
+          flutter build web --release
       
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
