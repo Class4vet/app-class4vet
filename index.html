@@ -34,7 +34,7 @@
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = "537244522";
+    const serviceWorkerVersion = "3244699966";
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
@@ -53,6 +53,11 @@
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
+    .error {
+      color: red;
+      text-align: center;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -62,15 +67,31 @@
   </div>
   <script>
     window.addEventListener('load', function(ev) {
+      var loading = document.querySelector('.loading');
+      var error = document.createElement('div');
+      error.className = 'error';
+      error.style.display = 'none';
+      document.body.appendChild(error);
+
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          loading.style.display = 'none';
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          }).catch(function(e) {
+            error.textContent = 'Error loading app: ' + e;
+            error.style.display = 'block';
+            console.error(e);
+          });
         }
-      }).then(function(engineInitializer) {
-        return engineInitializer.initializeEngine();
-      }).then(function(appRunner) {
-        return appRunner.runApp();
+      }).catch(function(e) {
+        error.textContent = 'Error loading Flutter: ' + e;
+        error.style.display = 'block';
+        console.error(e);
       });
     });
   </script>
