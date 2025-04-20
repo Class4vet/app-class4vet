@@ -11,6 +11,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final List<Map<String, dynamic>> chats = chatInfo;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

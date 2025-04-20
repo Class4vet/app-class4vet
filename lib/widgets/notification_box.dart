@@ -45,7 +45,7 @@ class NotificationBox extends StatelessWidget {
         style: TextStyle(color: Colors.white),
       ),
       child: SvgPicture.asset(
-        "assets/icons/categories/bell.svg",
+        "assets/icons/bell.svg",
         width: 20.0,
         height: 20.0,
       ),
@@ -54,7 +54,7 @@ class NotificationBox extends StatelessWidget {
 
   Widget _buildIcon() {
     return SvgPicture.asset(
-      "assets/icons/categories/bell.svg",
+      "assets/icons/bell.svg",
       width: 20.0,
       height: 20.0,
     );

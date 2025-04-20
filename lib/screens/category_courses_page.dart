@@ -12,8 +12,9 @@ class CategoryCoursesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryCourses =
-        courses.where((course) => course['category'] == category).toList();
+    final categoryCourses = category == 'All'
+        ? courses
+        : courses.where((course) => course['category'] == category).toList();
 
     return Scaffold(
       backgroundColor: AppColor.appBgColor,
@@ -34,21 +35,24 @@ class CategoryCoursesPage extends StatelessWidget {
         itemCount: categoryCourses.length,
         itemBuilder: (context, index) {
           final course = categoryCourses[index];
-          return CourseCard(
-            image: course['image'],
-            title: course['name'],
-            description: course['description'],
-            price: course['price'],
-            review: course['review'].toString(),
-            icon: Icons.school,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CourseDetailPage(course: course),
-                ),
-              );
-            },
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: CourseCard(
+              image: course['image'],
+              title: course['name'],
+              description: course['description'],
+              price: course['price'],
+              review: course['review'].toString(),
+              icon: Icons.school,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CourseDetailPage(course: course),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

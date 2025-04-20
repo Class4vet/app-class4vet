@@ -178,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CategoryCoursesPage(
-                      category: categories[index],
+                      category: categories[index]['name'],
                     ),
                   ),
                 );
