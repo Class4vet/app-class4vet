@@ -21,10 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v1.12.0
-        with:
-          channel: 'stable'
+      - name: Install Flutter
+        run: |
+          git clone https://github.com/flutter/flutter.git --branch stable --depth 1
+          export PATH="$PATH:`pwd`/flutter/bin"
+          flutter doctor
       
       - name: Build Web
         run: |
