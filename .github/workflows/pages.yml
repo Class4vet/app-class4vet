@@ -28,19 +28,13 @@ jobs:
           cache: true
       
       - name: Enable Web
-        run: |
-          flutter config --enable-web
-          flutter doctor -v
+        run: flutter config --enable-web
       
       - name: Get dependencies
-        run: |
-          flutter pub get
-          flutter pub upgrade
+        run: flutter pub get
       
       - name: Build
-        run: |
-          flutter clean
-          flutter build web --release --base-href "/app-class4vet/"
+        run: flutter build web --release --base-href "/app-class4vet/"
       
       - name: Setup Pages
         uses: actions/configure-pages@v3
