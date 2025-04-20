@@ -18,3 +18,7 @@ flutter run
 - Flutter
 - Firebase
 - REST API
+
+## 배포 상태
+- 웹 앱: https://class4vet.github.io/app-class4vet/
+- 자동 배포: GitHub Actions를 통해 main 브랜치 push 시 자동 배포
