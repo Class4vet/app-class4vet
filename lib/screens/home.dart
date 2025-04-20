@@ -197,129 +197,130 @@ class _HomePageState extends State<HomePage> {
 
   _buildFeaturesSection() {
     // Basic, Emergency, Equipment 카테고리의 첫 번째 코스를 가져옵니다
-    final basicCourse =
-        courses.firstWhere((course) => course['category'] == 'Basic');
-    final emergencyCourse =
-        courses.firstWhere((course) => course['category'] == 'Emergency');
-    final equipmentCourse =
-        courses.firstWhere((course) => course['category'] == 'Equipment');
+    final basicCourse = courses.firstWhere(
+      (course) => course['category'] == 'Basic',
+      orElse: () => courses[0],
+    );
+    final emergencyCourse = courses.firstWhere(
+      (course) => course['category'] == 'Emergency',
+      orElse: () => courses[0],
+    );
+    final equipmentCourse = courses.firstWhere(
+      (course) => course['category'] == 'Equipment',
+      orElse: () => courses[0],
+    );
 
-    final features = [
-      {
-        'title': basicCourse['name'],
-        'description': basicCourse['description'],
-        'image': basicCourse['image'],
-        'category': 'Basic',
-        'icon': Icons.school,
-        'course': basicCourse,
-      },
-      {
-        'title': emergencyCourse['name'],
-        'description': emergencyCourse['description'],
-        'image': emergencyCourse['image'],
-        'category': 'Emergency',
-        'icon': Icons.medical_services,
-        'course': emergencyCourse,
-      },
-      {
-        'title': equipmentCourse['name'],
-        'description': equipmentCourse['description'],
-        'image': equipmentCourse['image'],
-        'category': 'Equipment',
-        'icon': Icons.security,
-        'course': equipmentCourse,
-      },
-    ];
+    final featuredCourses = [basicCourse, emergencyCourse, equipmentCourse];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
           child: Text(
-            'Featured Courses',
+            "Featured",
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: AppColor.textColor,
             ),
           ),
         ),
-        SizedBox(height: 20),
         SizedBox(
-          height: 280,
+          height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            itemCount: features.length,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            itemCount: featuredCourses.length,
             itemBuilder: (context, index) {
-              return _buildFeatureItem(features[index]);
+              final course = featuredCourses[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 15),
+                child: SizedBox(
+                  width: 300,
+                  child: CourseCard(
+                    image: course['image']?.toString() ?? '',
+                    title: course['name']?.toString() ?? '',
+                    description: course['description']?.toString() ?? '',
+                    price: course['price']?.toString() ?? '',
+                    review: course['review']?.toString() ?? '',
+                    icon: Icons.star,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CourseDetailPage(
+                            course: course,
+                          ),
+                        ),
+                      );
+                    },
+                    isHorizontal: true,
+                  ),
+                ),
+              );
             },
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildFeatureItem(Map<String, dynamic> feature) {
-    return CourseCard(
-      image: feature['image'],
-      title: feature['title'],
-      description: feature['description'],
-      price: feature['course']['price'],
-      review: feature['course']['review'].toString(),
-      icon: feature['icon'],
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CourseDetailPage(course: feature['course']),
-          ),
-        );
-      },
     );
   }
 
   _buildRecommendSection() {
     // 리뷰 점수가 4.8 이상인 코스들을 추천 코스로 사용
-    final recommends = courses
-        .where((course) => double.parse(course['review']) >= 4.8)
-        .toList();
+    final recommends = courses.where((course) {
+      try {
+        final review = course['review']?.toString() ?? '0';
+        return double.parse(review) >= 4.8;
+      } catch (e) {
+        return false;
+      }
+    }).toList();
+
+    // 추천 코스가 없는 경우 기본 코스들을 사용
+    if (recommends.isEmpty) {
+      recommends.addAll(courses.take(3));
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 280,
+          height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             itemCount: recommends.length,
             itemBuilder: (context, index) {
-              return _buildRecommendItem(recommends[index]);
+              final course = recommends[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 15),
+                child: SizedBox(
+                  width: 300,
+                  child: CourseCard(
+                    image: course['image']?.toString() ?? '',
+                    title: course['name']?.toString() ?? '',
+                    description: course['description']?.toString() ?? '',
+                    price: course['price']?.toString() ?? '',
+                    review: course['review']?.toString() ?? '',
+                    icon: Icons.star,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CourseDetailPage(course: course),
+                        ),
+                      );
+                    },
+                    isHorizontal: true,
+                  ),
+                ),
+              );
             },
           ),
         ),
       ],
-    );
-  }
-
-  _buildRecommendItem(Map<String, dynamic> course) {
-    return CourseCard(
-      image: course['image'],
-      title: course['name'],
-      description: course['description'],
-      price: course['price'],
-      review: course['review'].toString(),
-      icon: Icons.star,
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CourseDetailPage(course: course),
-          ),
-        );
-      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CourseCard extends StatelessWidget {
   final String? image;
@@ -8,6 +9,7 @@ class CourseCard extends StatelessWidget {
   final String? review;
   final IconData? icon;
   final VoidCallback? onTap;
+  final bool isHorizontal;
 
   const CourseCard({
     Key? key,
@@ -18,6 +20,7 @@ class CourseCard extends StatelessWidget {
     this.review,
     this.icon,
     this.onTap,
+    this.isHorizontal = false,
   }) : super(key: key);
 
   @override
@@ -25,7 +28,7 @@ class CourseCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity,
+        width: isHorizontal ? 300 : double.infinity,
         height: 180,
         margin: const EdgeInsets.only(bottom: 15),
         decoration: BoxDecoration(
@@ -42,18 +45,39 @@ class CourseCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: image != null
-                  ? Image.network(
-                      image!,
-                      width: double.infinity,
-                      height: double.infinity,
+              child: image != null && image!.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: image!,
+                      width: isHorizontal ? 300 : double.infinity,
+                      height: 180,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.error),
-                        );
-                      },
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[300],
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[300],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline,
+                                color: Colors.red, size: 32),
+                            const SizedBox(height: 8),
+                            Text(
+                              '이미지를 불러올 수 없습니다',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     )
                   : Container(
                       color: Colors.grey[300],
@@ -73,7 +97,7 @@ class CourseCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (review != null)
+            if (review != null && review!.isNotEmpty)
               Positioned(
                 top: 12,
                 right: 12,
@@ -113,7 +137,7 @@ class CourseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (icon != null && title != null)
+                  if (icon != null && title != null && title!.isNotEmpty)
                     Row(
                       children: [
                         Icon(
@@ -136,7 +160,7 @@ class CourseCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  if (description != null) ...[
+                  if (description != null && description!.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
                       description!,
@@ -148,7 +172,7 @@ class CourseCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  if (price != null) ...[
+                  if (price != null && price!.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
                       price!,
