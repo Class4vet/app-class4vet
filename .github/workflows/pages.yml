@@ -7,38 +7,24 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
       
-      - name: Build Web
-        run: |
+      - run: |
           flutter config --enable-web
           flutter pub get
           flutter build web --release --base-href "/app-class4vet/"
       
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          personal_token: ${{ secrets.DEPLOY_TOKEN }}
-          publish_dir: ./build/web
-          commit_message: "Deploy to GitHub Pages" 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web 
