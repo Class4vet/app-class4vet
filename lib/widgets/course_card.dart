@@ -25,9 +25,9 @@ class CourseCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.7,
+        width: double.infinity,
         height: 180,
-        margin: const EdgeInsets.only(right: 10),
+        margin: const EdgeInsets.only(bottom: 15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
