@@ -1,3 +1,5 @@
+
+//대분류 - 중분류 - 클래스 - 강의
 class Category {
   final String id;
   final String name;

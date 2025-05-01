@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:class4vet/theme/color.dart';
 import 'package:class4vet/models/category.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:class4vet/screens/quiz_page.dart';
 
 class CourseDetailPage extends StatelessWidget {
   final Lecture lecture;
@@ -155,25 +156,9 @@ class CourseDetailPage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          '강의 가격',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          lecture.price,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
-                            // TODO: 결제 처리
+                            // TODO: 강의 시청 처리
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.primary,
@@ -183,10 +168,39 @@ class CourseDetailPage extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            '강의 신청하기',
+                            '강의 시청하기',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const QuizPage()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            side: BorderSide(
+                              color: AppColor.primary,
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            '시험 보기',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.primary,
                             ),
                           ),
                         ),
