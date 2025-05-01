@@ -30,6 +30,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/icons/category/
+    - assets/images/
 
 dependency_overrides:
   file: ^7.0.0

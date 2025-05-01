@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:class4vet/theme/color.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryBox extends StatelessWidget {
   CategoryBox({
@@ -25,7 +26,7 @@ class CategoryBox extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             curve: Curves.fastOutSlowIn,
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: isSelected ? AppColor.red : Colors.white,
               boxShadow: [
@@ -33,17 +34,12 @@ class CategoryBox extends StatelessWidget {
                   color: AppColor.shadowColor.withOpacity(0.1),
                   spreadRadius: 1,
                   blurRadius: 1,
-                  offset: Offset(1, 1), // changes position of shadow
+                  offset: const Offset(1, 1),
                 ),
               ],
               shape: BoxShape.circle,
             ),
-            child: SvgPicture.asset(
-              data["icon"],
-              color: isSelected ? selectedColor : AppColor.textColor,
-              width: 30,
-              height: 30,
-            ),
+            child: _buildIcon(),
           ),
           const SizedBox(
             height: 10,
@@ -59,6 +55,43 @@ class CategoryBox extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildIcon() {
+    final icon = data["icon"];
+    if (icon == null) {
+      return const Icon(
+        Icons.category,
+        size: 30,
+        color: AppColor.textColor,
+      );
+    }
+
+    if (icon.toString().startsWith('http')) {
+      return ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: icon,
+          width: 30,
+          height: 30,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          errorWidget: (context, url, error) => const Icon(
+            Icons.error,
+            size: 30,
+            color: AppColor.textColor,
+          ),
+        ),
+      );
+    }
+
+    return SvgPicture.asset(
+      icon,
+      color: isSelected ? selectedColor : AppColor.textColor,
+      width: 30,
+      height: 30,
     );
   }
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:class4vet/theme/color.dart';
+import 'package:class4vet/models/category.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CourseDetailPage extends StatelessWidget {
-  final Map<String, dynamic> course;
+  final Lecture lecture;
 
-  const CourseDetailPage({Key? key, required this.course}) : super(key: key);
+  const CourseDetailPage({Key? key, required this.lecture}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +17,21 @@ class CourseDetailPage extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
+            backgroundColor: AppColor.appBarColor,
             flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                course['image'],
+              background: CachedNetworkImage(
+                imageUrl: lecture.image,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[300],
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.error),
+                ),
               ),
             ),
           ),
@@ -29,79 +42,155 @@ class CourseDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course['name'],
+                    lecture.title,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        course['review'].toString(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                  if (lecture.review != null) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 20,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Description',
+                        const SizedBox(width: 5),
+                        Text(
+                          lecture.review!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  if (lecture.instructor != null) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.person,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          lecture.instructor!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  if (lecture.duration != null) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.timer,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          lecture.duration!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  if (lecture.level != null) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.school,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          lecture.level!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  const Text(
+                    '강의 설명',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColor.textColor,
                     ),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    course['description'],
-                    style: TextStyle(
+                    lecture.description,
+                    style: const TextStyle(
                       fontSize: 16,
-                      color: AppColor.textColor,
+                      height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Duration',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.textColor,
+                  const SizedBox(height: 30),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    course['duration'],
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColor.textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Price',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    course['price'],
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColor.textColor,
+                    child: Column(
+                      children: [
+                        const Text(
+                          '강의 가격',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          lecture.price,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            // TODO: 결제 처리
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.primary,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: const Text(
+                            '강의 신청하기',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -109,38 +198,6 @@ class CourseDetailPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            // TODO: Implement enrollment
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColor.primary,
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text(
-            'Enroll Now',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
       ),
     );
   }

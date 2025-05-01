@@ -13,6 +13,7 @@ import 'package:class4vet/screens/all_courses_page.dart';
 import 'package:class4vet/screens/profile_page.dart';
 import 'package:class4vet/screens/category_courses_page.dart';
 import 'package:class4vet/widgets/course_card.dart';
+import 'package:class4vet/models/category.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -50,74 +51,82 @@ class _HomePageState extends State<HomePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfilePage(),
-                  ),
-                );
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey[200],
-                ),
-                child: ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: profile["image"]!,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.person,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  profile["name"]!,
-                  style: TextStyle(
-                    color: AppColor.labelColor,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "Good Morning!",
-                  style: TextStyle(
-                    color: AppColor.textColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        NotificationBox(
-          notifiedNumber: 1,
-        )
+        _buildProfileSection(),
+        NotificationBox(notifiedNumber: 1),
       ],
     );
   }
 
-  _buildBody() {
+  Widget _buildProfileSection() {
+    return Row(
+      children: [
+        _buildProfileImage(),
+        const SizedBox(width: 10),
+        _buildProfileInfo(),
+      ],
+    );
+  }
+
+  Widget _buildProfileImage() {
+    return GestureDetector(
+      onTap: () => _navigateToProfile(),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey[200],
+        ),
+        child: ClipOval(
+          child: CachedNetworkImage(
+            imageUrl: profile["image"]!,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            errorWidget: (context, url, error) => Icon(
+              Icons.person,
+              color: Colors.grey[400],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileInfo() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          profile["name"]!,
+          style: TextStyle(
+            color: AppColor.labelColor,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          "Good Morning!",
+          style: TextStyle(
+            color: AppColor.textColor,
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _navigateToProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
+    );
+  }
+
+  Widget _buildBody() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -127,200 +136,192 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 15),
           _buildFeaturesSection(),
           const SizedBox(height: 15),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Recommended",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: AppColor.textColor,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AllCoursesPage(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    "See all",
-                    style: TextStyle(fontSize: 14, color: AppColor.darker),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildRecommendedHeader(),
           _buildRecommendSection(),
         ],
       ),
     );
   }
 
-  _buildCategories() {
+  Widget _buildCategories() {
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(15, 10, 0, 10),
+      padding: const EdgeInsets.fromLTRB(15, 10, 0, 10),
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(
           categories.length,
           (index) => Padding(
             padding: const EdgeInsets.only(right: 15),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CategoryCoursesPage(
-                      category: categories[index]['name'],
-                    ),
-                  ),
-                );
-              },
-              child: CategoryBox(
-                selectedColor: Colors.white,
-                data: categories[index],
-                onTap: null,
-              ),
-            ),
+            child: _buildCategoryItem(categories[index]),
           ),
         ),
       ),
     );
   }
 
-  _buildFeaturesSection() {
-    // Basic, Emergency, Equipment 카테고리의 첫 번째 코스를 가져옵니다
-    final basicCourse = courses.firstWhere(
-      (course) => course['category'] == 'Basic',
-      orElse: () => courses[0],
+  Widget _buildCategoryItem(Category category) {
+    return GestureDetector(
+      onTap: () => _navigateToCategory(category.name),
+      child: CategoryBox(
+        selectedColor: Colors.white,
+        data: {
+          'name': category.name,
+          'icon': category.image,
+        },
+        onTap: null,
+      ),
     );
-    final emergencyCourse = courses.firstWhere(
-      (course) => course['category'] == 'Emergency',
-      orElse: () => courses[0],
-    );
-    final equipmentCourse = courses.firstWhere(
-      (course) => course['category'] == 'Equipment',
-      orElse: () => courses[0],
-    );
+  }
 
-    final featuredCourses = [basicCourse, emergencyCourse, equipmentCourse];
+  void _navigateToCategory(String categoryName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryCoursesPage(category: categoryName),
+      ),
+    );
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
-          child: Text(
-            "Featured",
+  Widget _buildRecommendedHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Recommended",
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w600,
               color: AppColor.textColor,
             ),
           ),
-        ),
+          GestureDetector(
+            onTap: () => _navigateToAllCourses(),
+            child: Text(
+              "See all",
+              style: TextStyle(fontSize: 14, color: AppColor.darker),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToAllCourses() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AllCoursesPage()),
+    );
+  }
+
+  Widget _buildFeaturesSection() {
+    final featuredLectures = _getFeaturedLectures();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader("Featured"),
         SizedBox(
-          height: 200,
+          height: 250,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 15),
-            itemCount: featuredCourses.length,
-            itemBuilder: (context, index) {
-              final course = featuredCourses[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 15),
-                child: SizedBox(
-                  width: 300,
-                  child: CourseCard(
-                    image: course['image']?.toString() ?? '',
-                    title: course['name']?.toString() ?? '',
-                    description: course['description']?.toString() ?? '',
-                    price: course['price']?.toString() ?? '',
-                    review: course['review']?.toString() ?? '',
-                    icon: Icons.star,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CourseDetailPage(
-                            course: course,
-                          ),
-                        ),
-                      );
-                    },
-                    isHorizontal: true,
-                  ),
-                ),
-              );
-            },
+            itemCount: featuredLectures.length,
+            itemBuilder: (context, index) =>
+                _buildCourseCard(featuredLectures[index]),
           ),
         ),
       ],
     );
   }
 
-  _buildRecommendSection() {
-    // 리뷰 점수가 4.8 이상인 코스들을 추천 코스로 사용
-    final recommends = courses.where((course) {
+  List<Lecture> _getFeaturedLectures() {
+    final featuredLectures = <Lecture>[];
+    for (final category in categories) {
+      for (final subCategory in category.subCategories) {
+        for (final classModel in subCategory.classes) {
+          featuredLectures.addAll(classModel.lectures);
+        }
+      }
+    }
+    return featuredLectures.take(3).toList();
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: AppColor.textColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseCard(Lecture lecture) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 15),
+      child: SizedBox(
+        width: 250,
+        child: CourseCard(
+          lecture: lecture,
+          isHorizontal: true,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToCourseDetail(Lecture lecture) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourseDetailPage(lecture: lecture),
+      ),
+    );
+  }
+
+  Widget _buildRecommendSection() {
+    final recommendLectures = _getRecommendLectures();
+
+    return SizedBox(
+      height: 250,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        itemCount: recommendLectures.length,
+        itemBuilder: (context, index) =>
+            _buildCourseCard(recommendLectures[index]),
+      ),
+    );
+  }
+
+  List<Lecture> _getRecommendLectures() {
+    final allLectures = <Lecture>[];
+    for (final category in categories) {
+      for (final subCategory in category.subCategories) {
+        for (final classModel in subCategory.classes) {
+          allLectures.addAll(classModel.lectures);
+        }
+      }
+    }
+
+    final recommends = allLectures.where((lecture) {
       try {
-        final review = course['review']?.toString() ?? '0';
-        return double.parse(review) >= 4.8;
+        final score = double.parse(lecture.review ?? '0');
+        return score >= 4.8;
       } catch (e) {
         return false;
       }
     }).toList();
 
-    // 추천 코스가 없는 경우 기본 코스들을 사용
     if (recommends.isEmpty) {
-      recommends.addAll(courses.take(3));
+      return allLectures.take(3).toList();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 200,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            itemCount: recommends.length,
-            itemBuilder: (context, index) {
-              final course = recommends[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 15),
-                child: SizedBox(
-                  width: 300,
-                  child: CourseCard(
-                    image: course['image']?.toString() ?? '',
-                    title: course['name']?.toString() ?? '',
-                    description: course['description']?.toString() ?? '',
-                    price: course['price']?.toString() ?? '',
-                    review: course['review']?.toString() ?? '',
-                    icon: Icons.star,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CourseDetailPage(course: course),
-                        ),
-                      );
-                    },
-                    isHorizontal: true,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
+    return recommends;
   }
 }
